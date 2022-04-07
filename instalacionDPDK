@@ -1,0 +1,31 @@
+#Este fichero se ha ejecutar dentro de la MV
+#Hay algunos campos que son especificos para el equipo donde se ha creado
+
+
+wget http://fast.dpdk.org/rel/dpdk-21.11.tar.xz
+tar xf dpdk-21.11.tar.xz 
+sudo apt install build-essential meson python3-pyelftools libnuma-dev pkgconf
+cd dpdk-21.11
+meson -Dexamples=all build
+ninja -C build
+cd build
+
+sudo
+ninja install
+ldconfig
+
+ifconfig ens4 down
+modprobe uio
+modprobe uio_pci_generic
+dpdk-devbind.py -b uio_pci_generic 00:04.0
+exit
+
+cd dpdk-21.11/build/examples
+
+sudo 
+mkdir -p /dev/hugepages
+mountpoint -q /dev/hugepages || mount -t hugetlbfs nodev /dev/hugepages
+echo 64 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+exit
+
+
